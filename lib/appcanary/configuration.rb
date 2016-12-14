@@ -5,17 +5,25 @@ module Appcanary
 
   class Configuration
     attr_accessor :base_uri, :api_token, :monitor_name
+
+    def initialize
+      self.base_uri = APPCANARY_DEFAULT_BASE_URI
+    end
   end
 
   class << self
     attr_writer :configuration
 
     def configuration
-      @configuration || Configuration.new
+      @configuration ||= Configuration.new
+    end
+
+    def reset
+      @configuration = Configuration.new
     end
 
     def configure
-      yield configuration
+      yield(configuration)
     end
   end
 
