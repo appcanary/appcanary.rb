@@ -7,12 +7,28 @@ require "json"
 module Appcanary
   APPCANARY_BASE_URI = "https://appcanary.com/api/v3/monitors"
 
+  class Configuration
+    attr_accessor :base_uri, :api_token, :monitor_name
+  end
+
+  class << self
+    attr_writer :configuration
+
+    def configuration
+      @configuration || Configuration.new
+    end
+
+    def configure
+      yield configuration
+    end
+  end
+
   def config
     {}.tap do |m|
       if defined?(Rails)
-        m[:token] = Rails.configuration.appcanary.api_token
-        m[:name] = Rails.configuration.appcanary.monitor_name
-        m[:base_uri] = Rails.configuration.appcanary.base_uri
+        m[:token] = Appcanary.configuration.api_token
+        m[:name] = Appcanary.configuration.monitor_name
+        m[:base_uri] = Appcanary.configuration.base_uri
       else
         begin
           yaml_config = YAML.load_file("#{Bundler.root}/appcanary.yml")
