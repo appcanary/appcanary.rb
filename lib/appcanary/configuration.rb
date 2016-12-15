@@ -1,7 +1,7 @@
 require "yaml"
 
 module Appcanary
-  APPCANARY_DEFAULT_BASE_URI = "https://appcanary.com/api/v3/monitors"
+  APPCANARY_DEFAULT_BASE_URI = "https://appcanary.com/api/v3"
 
   class Configuration
     attr_accessor :base_uri, :api_token, :monitor_name

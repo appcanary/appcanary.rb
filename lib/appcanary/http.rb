@@ -7,8 +7,8 @@ module Appcanary
   end
 
   class << self
-    def try_request_with(request_type)
-      url = URI.parse("#{config[:base_uri]}/#{config[:name]}")
+    def try_request_with(request_type, endpoint)
+      url = URI.parse("#{config[:base_uri]}/#{endpoint.to_s}/#{config[:name]}")
       filename = File.basename(Bundler.default_lockfile)
       url.query = URI.encode_www_form("platform" => "ruby")
 
@@ -28,11 +28,11 @@ module Appcanary
       end
     end
 
-    def ship_gemfile(&block)
-      resp = try_request_with Net::HTTP::Put::Multipart
+    def ship_gemfile(endpoint = :monitors, &block)
+      resp = try_request_with Net::HTTP::Put::Multipart, endpoint
 
       unless resp.code.to_s == "200"
-        resp = try_request_with Net::HTTP::Post::Multipart
+        resp = try_request_with Net::HTTP::Post::Multipart, endpoint
       end
 
       unless ["200", "201"].include? resp.code.to_s
