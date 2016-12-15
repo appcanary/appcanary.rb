@@ -7,8 +7,17 @@ module Appcanary
   end
 
   class << self
+    def url_for endpoint
+      case endpoint
+      when :monitors
+        URI.parse("#{config[:base_uri]}/monitors/#{config[:name]}")
+      when :check
+        URI.parse("#{config[:base_uri]}/check")
+      end
+    end
+
     def try_request_with(request_type, endpoint)
-      url = URI.parse("#{config[:base_uri]}/#{endpoint.to_s}/#{config[:name]}")
+      url = url_for(endpoint)
       filename = File.basename(Bundler.default_lockfile)
       url.query = URI.encode_www_form("platform" => "ruby")
 
