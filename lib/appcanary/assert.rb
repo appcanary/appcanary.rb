@@ -8,16 +8,19 @@ module Appcanary
       end
     end
 
+    def frequencies(arr)
+      arr.inject({}) do |freqs, i|
+        freqs[i] ||= 0
+        freqs[i] += 1
+        freqs
+      end
+    end
+
     def criticalities(response)
       response["included"]
         .map { |vuln| vuln["attributes"] }
         .map { |attrs| attrs["criticality"] }
-        .inject({}) do |freqs, crit|
-
-        freqs[crit] ||= 0
-        freqs[crit] += 1
-        freqs
-      end
+        .frequencies
     end
 
     def am_I_fucked?
