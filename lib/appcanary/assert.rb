@@ -12,7 +12,7 @@ module Appcanary
 
     def criticalities(response)
       frequencies response["included"]
-        .map { |vuln| vuln["attributes"]["criticality"] }
+                    .map { |vuln| vuln["attributes"]["criticality"] }
     end
 
     def vulnerable?
