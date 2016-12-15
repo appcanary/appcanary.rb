@@ -21,7 +21,7 @@ module Appcanary
       end
     end
 
-    def am_I_fucked?
+    def am_I_critically_fucked?
       # you're fucked if you have critical vulnerabilities
       ship_gemfile :check do |response|
         if response["meta"]["vulnerable"]
@@ -32,13 +32,12 @@ module Appcanary
       end
     end
 
-    def am_I_kinda_fucked?
+    def am_I_highly_fucked?
       # you're kinda fucked if you have critical or high criticality
       # vulnerabilities
       ship_gemfile :check do |response|
         if response["meta"]["vulnerable"]
-          crits = criticalities(response)
-          crits["critical"] > 0 || crits["high"] > 0
+          criticalities(response)["high"] > 0
         else
           false
         end
