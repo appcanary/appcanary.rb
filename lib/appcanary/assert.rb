@@ -2,12 +2,6 @@ require "json"
 
 module Appcanary
   class << self
-    def vulnerable?
-      ship_gemfile :check do |response|
-        !! response["meta"]["vulnerable"]
-      end
-    end
-
     def frequencies(arr)
       arr.inject({}) do |freqs, i|
         freqs[i] ||= 0
@@ -17,10 +11,14 @@ module Appcanary
     end
 
     def criticalities(response)
-      response["included"]
-        .map { |vuln| vuln["attributes"] }
-        .map { |attrs| attrs["criticality"] }
-        .frequencies
+      frequencies response["included"]
+        .map { |vuln| vuln["attributes"]["criticality"] }
+    end
+
+    def vulnerable?
+      ship_gemfile :check do |response|
+        !! response["meta"]["vulnerable"]
+      end
     end
 
     def am_I_fucked?
@@ -35,7 +33,7 @@ module Appcanary
     end
 
     def am_I_kinda_fucked?
-      # you're kinda fucked if you have critical and high criticality
+      # you're kinda fucked if you have critical or high criticality
       # vulnerabilities
       ship_gemfile :check do |response|
         if response["meta"]["vulnerable"]
