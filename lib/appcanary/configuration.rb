@@ -27,7 +27,7 @@ module Appcanary
       block.call(configuration) if block
     end
 
-    def config
+    def resolved_config
       {}.tap do |m|
         if defined?(Rails)
           m[:token]      = Appcanary.configuration.api_token

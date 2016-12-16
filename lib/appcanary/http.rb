@@ -6,18 +6,47 @@ module Appcanary
   class ServiceError < RuntimeError
   end
 
-  class << self
-    def url_for endpoint
+  module HTTP
+    def ship_gemfile(endpoint, config, &block)
+      resp = try_request_with(:put, endpoint, config)
+
+      unless resp.code.to_s == "200"
+        resp = try_request_with(:post, endpoint, config)
+      end
+
+      unless %w[200 201].include? resp.code.to_s
+        raise ServiceError.new("Could not connect to Appcanary: #{resp}")
+      end
+
+      parsed_response = JSON.parse(resp.body)
+
+      if block
+        block.call(parsed_response)
+      else
+        parsed_response
+      end
+    end
+
+    private
+    def url_for(endpoint, config)
       case endpoint
       when :monitors
         URI.parse("#{config[:base_uri]}/monitors/#{config[:name]}")
       when :check
         URI.parse("#{config[:base_uri]}/check")
+      else
+        raise RuntimeError.new("Unknown Appcanary endpoint: #{endpoint.to_s}!")
       end
     end
 
-    def try_request_with(request_type, endpoint)
-      url = url_for(endpoint)
+    REQUEST_TYPES = {
+      :post => Net::HTTP::Post::Multipart,
+      :put => Net::HTTP::Put::Multipart
+    }
+
+    def try_request_with(method, endpoint, config)
+      request_type = REQUEST_TYPES[method]
+      url = url_for(endpoint, config)
       filename = File.basename(Bundler.default_lockfile)
       url.query = URI.encode_www_form("platform" => "ruby")
 
@@ -34,26 +63,6 @@ module Appcanary
           req = request_type.new(url.path, params, headers, SecureRandom.base64)
           http.request(req)
         end
-      end
-    end
-
-    def ship_gemfile(endpoint = :monitors, &block)
-      resp = try_request_with Net::HTTP::Put::Multipart, endpoint
-
-      unless resp.code.to_s == "200"
-        resp = try_request_with Net::HTTP::Post::Multipart, endpoint
-      end
-
-      unless ["200", "201"].include? resp.code.to_s
-        raise ServiceError.new("Could not connect to Appcanary: #{resp}")
-      end
-
-      parsed_response = JSON.parse(resp.body)
-
-      if block
-        block.call(parsed_response)
-      else
-        parsed_response
       end
     end
   end
