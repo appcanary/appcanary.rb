@@ -5,8 +5,19 @@ describe Appcanary do
     refute_nil ::Appcanary::VERSION
   end
 
-  it "is not itself vulnerable" do
-    assert(!Appcanary::Client.vulnerable?)
+  describe "security" do
+    before do
+      config = {
+        token: ENV["APPCANARY_API_TOKEN"],
+        base_uri: ENV["APPCANARY_BASE_URI"] || "http://localhost:3000/api/v3",
+        name: "appcanary.rb"
+      }
+      @canary = Appcanary::Client.new(config)
+    end
+
+    it "is not itself vulnerable" do
+      assert(!@canary.vulnerable?)
+    end
   end
 
   describe "configuration" do
