@@ -8,10 +8,15 @@ module Appcanary
 
   module HTTP
     def ship_gemfile(endpoint, config, &block)
-      resp = try_request_with(:put, endpoint, config)
+      payload = {
+        file: Bundler.default_lockfile,
+        platform: "ruby"
+      }
+
+      resp = try_request_with(:put, endpoint, payload, config)
 
       unless resp.code.to_s == "200"
-        resp = try_request_with(:post, endpoint, config)
+        resp = try_request_with(:post, endpoint, payload, config)
       end
 
       unless %w[200 201].include? resp.code.to_s
@@ -35,29 +40,34 @@ module Appcanary
       when :check
         URI.parse("#{config[:base_uri]}/check")
       else
+        # internal brokenness
         raise RuntimeError.new("Unknown Appcanary endpoint: #{endpoint.to_s}!")
       end
     end
 
     REQUEST_TYPES = {
-      :post => Net::HTTP::Post::Multipart,
-      :put => Net::HTTP::Put::Multipart
+      post: Net::HTTP::Post::Multipart,
+      put: Net::HTTP::Put::Multipart
     }
 
-    def try_request_with(method, endpoint, config)
+    def try_request_with(method, endpoint, payload, config)
       request_type = REQUEST_TYPES[method]
       url = url_for(endpoint, config)
-      filename = File.basename(Bundler.default_lockfile)
-      url.query = URI.encode_www_form("platform" => "ruby")
+      filename = File.basename(payload[:file])
+      url.query = URI.encode_www_form("platform" => payload[:platform])
 
-      File.open(Bundler.default_lockfile) do |lockfile|
-        params = {
-          "file" => UploadIO.new(lockfile, "text/plain", filename),
-          "platform" => "ruby"
-        }
-        headers = {
-          "Authorization" => "Token #{config[:token]}"
-        }
+      File.open(payload[:file]) do |file|
+        params = {}.tap do |p|
+          p["file"] = UploadIO.new(file, "text/plain", filename)
+          p["platform"] = payload[:platform]
+
+          if payload[:version]
+            p["version"] = payload[:version]
+            url.query = url.query.merge("version", payload[:version])
+          end
+        end
+
+        headers = {"Authorization" => "Token #{config[:token]}"}
 
         Net::HTTP.start(url.host, url.port) do |http|
           req = request_type.new(url.path, params, headers, SecureRandom.base64)
