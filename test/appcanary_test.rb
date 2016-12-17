@@ -5,6 +5,10 @@ describe Appcanary do
     refute_nil ::Appcanary::VERSION
   end
 
+  it "is not itself vulnerable" do
+    assert(!Appcanary::Client.vulnerable?)
+  end
+
   describe "configuration" do
     before do
       Appcanary.configure do |c|
