@@ -10,17 +10,13 @@ module Appcanary
       @config = config
     end
 
-    def vulnerable?
-      ship_gemfile(:check, config) do |response|
+    def vulnerable?(criticality = nil)
+      check do |response|
         vulnerable = response["meta"]["vulnerable"]
-        vulnerable == true || vulnerable == "true"
-      end
-    end
+        if vulnerable == true || vulnerable == "true"
+          return true if criticality.nil?
 
-    def am_I_fucked?(criticality)
-      ship_gemfile(:check, config) do |response|
-        if response["meta"]["vulnerable"]
-          cnt = criticalities(response)[criticality.to_s]
+          cnt = count_criticalities(response)[criticality.to_s]
           cnt && cnt > 0
         else
           false
@@ -28,19 +24,14 @@ module Appcanary
       end
     end
 
-    def am_I_critically_fucked?
-      # you're critically fucked if you have critical vulnerabilities
-      am_I_fucked? :critical
-    end
+    def check(&block)
+      response = ship_gemfile(:check, config)
 
-    def am_I_highly_fucked?
-      # you're highly fucked if you have critical or high criticality
-      # vulnerabilities
-      am_I_fucked? :high
-    end
-
-    def check
-      ship_gemfile(:check, config)
+      if block
+        block.call(response)
+      else
+        response
+      end
     end
 
     def update_monitor!
@@ -48,12 +39,9 @@ module Appcanary
     end
 
     class << self
-      def vulnerable?;               canary.vulnerable?;               end
-      def am_I_fucked?(criticality); canary.am_I_fucked?(criticality); end
-      def am_I_critically_fucked?;   am_I_fucked?(:critical);          end
-      def am_I_highly_fucked?;       am_I_fucked?(:high);              end
-      def update_monitor!;           canary.update_monitor!;           end
-      def check;                     canary.check;                     end
+      def vulnerable?(criticality = nil); canary.vulnerable?(criticality); end
+      def update_monitor!;                canary.update_monitor!;          end
+      def check;                          canary.check;                    end
 
       private
       def canary
@@ -70,7 +58,7 @@ module Appcanary
       end
     end
 
-    def criticalities(response)
+    def count_criticalities(response)
       count_frequencies(
         response["included"].map { |vuln| vuln["attributes"]["criticality"] })
     end
