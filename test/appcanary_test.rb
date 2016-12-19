@@ -8,11 +8,15 @@ describe Appcanary do
   describe "security" do
     before do
       config = {
-        token: ENV["APPCANARY_API_TOKEN"],
+        api_token: ENV["APPCANARY_API_TOKEN"],
         base_uri: ENV["APPCANARY_BASE_URI"] || "http://localhost:3000/api/v3",
-        name: "appcanary.rb"
+        monitor_name: "appcanary.rb"
       }
       @canary = Appcanary::Client.new(config)
+    end
+
+    after do
+      @canary.update_monitor!
     end
 
     it "is not itself vulnerable" do

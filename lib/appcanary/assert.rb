@@ -12,7 +12,8 @@ module Appcanary
 
     def vulnerable?
       ship_gemfile(:check, config) do |response|
-        !! response["meta"]["vulnerable"]
+        vulnerable = response["meta"]["vulnerable"]
+        vulnerable == true || vulnerable == "true"
       end
     end
 
@@ -38,6 +39,10 @@ module Appcanary
       am_I_fucked? :high
     end
 
+    def check
+      ship_gemfile(:check, config)
+    end
+
     def update_monitor!
       ship_gemfile(:monitors, config)
     end
@@ -48,6 +53,7 @@ module Appcanary
       def am_I_critically_fucked?;   am_I_fucked?(:critical);          end
       def am_I_highly_fucked?;       am_I_fucked?(:high);              end
       def update_monitor!;           canary.update_monitor!;           end
+      def check;                     canary.check;                     end
 
       private
       def canary

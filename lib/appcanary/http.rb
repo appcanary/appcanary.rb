@@ -40,7 +40,7 @@ module Appcanary
     def url_for(endpoint, config)
       case endpoint
       when :monitors
-        URI.parse("#{config[:base_uri]}/monitors/#{config[:name]}")
+        URI.parse("#{config[:base_uri]}/monitors/#{config[:monitor_name]}")
       when :check
         URI.parse("#{config[:base_uri]}/check")
       else
@@ -71,7 +71,7 @@ module Appcanary
           end
         end
 
-        headers = {"Authorization" => "Token #{config[:token]}"}
+        headers = {"Authorization" => "Token #{config[:api_token]}"}
         req = request_type.new(url.path, params, headers, SecureRandom.base64)
         options = { use_ssl: url.scheme == "https" }
 
