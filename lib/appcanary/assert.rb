@@ -12,7 +12,8 @@ module Appcanary
 
     def vulnerable?
       ship_gemfile(:check, config) do |response|
-        !! response["meta"]["vulnerable"]
+        vulnerable = response["meta"]["vulnerable"]
+        vulnerable == true || vulnerable == "true"
       end
     end
 
