@@ -15,6 +15,10 @@ describe Appcanary do
       @canary = Appcanary::Client.new(config)
     end
 
+    after do
+      @canary.update_monitor!
+    end
+
     it "is not itself vulnerable" do
       assert(!@canary.vulnerable?)
     end
