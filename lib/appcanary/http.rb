@@ -13,6 +13,16 @@ module Appcanary
         platform: "ruby"
       }
 
+      parsed_response = ship_file(endpoint, payload, config)
+
+      if block
+        block.call(parsed_response)
+      else
+        parsed_response
+      end
+    end
+
+    def ship_file(endpoint, payload, config)
       resp = try_request_with(:put, endpoint, payload, config)
 
       unless resp.code.to_s == "200"
@@ -23,13 +33,7 @@ module Appcanary
         raise ServiceError.new("Could not connect to Appcanary: #{resp}")
       end
 
-      parsed_response = JSON.parse(resp.body)
-
-      if block
-        block.call(parsed_response)
-      else
-        parsed_response
-      end
+      JSON.parse(resp.body)
     end
 
     private
