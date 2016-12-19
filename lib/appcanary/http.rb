@@ -72,9 +72,10 @@ module Appcanary
         end
 
         headers = {"Authorization" => "Token #{config[:token]}"}
+        req = request_type.new(url.path, params, headers, SecureRandom.base64)
+        options = { use_ssl: url.scheme == "https" }
 
-        Net::HTTP.start(url.host, url.port) do |http|
-          req = request_type.new(url.path, params, headers, SecureRandom.base64)
+        Net::HTTP.start(url.host, url.port, options) do |http|
           http.request(req)
         end
       end
