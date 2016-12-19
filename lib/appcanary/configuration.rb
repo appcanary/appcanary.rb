@@ -9,6 +9,10 @@ module Appcanary
     def initialize
       self.base_uri = APPCANARY_DEFAULT_BASE_URI
     end
+
+    def valid?
+      ! (base_uri.nil? || api_token.nil? || monitor_name.nil?)
+    end
   end
 
   class ConfigurationError < RuntimeError
@@ -29,7 +33,7 @@ module Appcanary
 
     def resolved_config
       {}.tap do |m|
-        if defined?(Rails)
+        if Appcanary.configuration.valid?
           m[:api_token]    = Appcanary.configuration.api_token
           m[:monitor_name] = Appcanary.configuration.monitor_name
           m[:base_uri]     = Appcanary.configuration.base_uri
@@ -39,6 +43,8 @@ module Appcanary
             m[:api_token]    = yaml_config["api_token"]
             m[:monitor_name] = yaml_config["monitor_name"]
             m[:base_uri]     = yaml_config["base_uri"]
+          rescue Errno::ENOENT
+            raise ConfigurationError.new("No configuration found")
           rescue => e
             raise ConfigurationError.new(e)
           end

@@ -10,9 +10,8 @@ describe Appcanary do
       before do
         Appcanary.configure do |canary|
           canary.api_token = ENV["APPCANARY_API_TOKEN"]
-          canary.base_uri = ENV["APPCANARY_BASE_URI"] ||
-                            "https://appcanary.com/api/v3"
-          monitor_name = "appcanary.rb"
+          canary.base_uri = ENV["APPCANARY_BASE_URI"] || "https://appcanary.com/api/v3"
+          canary.monitor_name = "appcanary.rb"
         end
       end
 
