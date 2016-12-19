@@ -3,7 +3,7 @@ require "rake"
 
 namespace :appcanary do
   desc "Check vulnerability status"
-  task check: :environment do
+  task :check do
     response = Appcanary::Client.check
     if response["meta"]["vulnerable"]
       response["included"].map do |vuln|
