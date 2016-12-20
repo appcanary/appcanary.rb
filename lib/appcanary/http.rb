@@ -40,7 +40,13 @@ module Appcanary
     def url_for(endpoint, config)
       case endpoint
       when :monitors
-        URI.parse("#{config[:base_uri]}/monitors/#{config[:monitor_name]}")
+        monitor = "#{config[:monitor_name]}"
+
+        if ENV["CIRCLECI"] && ENV["CIRCLECI"] == "true"
+          monitor = "#{monitor}-#{ENV['CIRCLE_BRANCH']}"
+        end
+
+        URI.parse("#{config[:base_uri]}/monitors/#{monitor}")
       when :check
         URI.parse("#{config[:base_uri]}/check")
       else
