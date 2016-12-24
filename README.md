@@ -101,8 +101,7 @@ Appcanary.configure do |canary|
 end
 ```
 
-Using the traditional Rails idiom. The gem may then be used without
-instantiating a client, like this:
+The gem may then be used without instantiating a client, like this:
 
 ```ruby
 if Appcanary::Client.vulnerable? :critical
