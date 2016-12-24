@@ -30,7 +30,7 @@ module Appcanary
       end
 
       unless %w[200 201].include? resp.code.to_s
-        raise ServiceError.new("Could not connect to Appcanary: #{resp}")
+        raise ServiceError.new("Failed to ship file to Appcanary: #{resp}")
       end
 
       JSON.parse(resp.body)
@@ -40,7 +40,17 @@ module Appcanary
     def url_for(endpoint, config)
       case endpoint
       when :monitors
-        URI.parse("#{config[:base_uri]}/monitors/#{config[:monitor_name]}")
+        monitor = "#{config[:monitor_name]}"
+
+        if ENV["CIRCLECI"] && ENV["CIRCLECI"] == "true"
+          monitor = "#{monitor}_#{ENV['CIRCLE_BRANCH']}"
+        end
+
+        # these are rails routing delimiters
+        monitor.gsub!("/", "_")
+        monitor.gsub!(".", "_")
+
+        URI.parse("#{config[:base_uri]}/monitors/#{monitor}")
       when :check
         URI.parse("#{config[:base_uri]}/check")
       else
