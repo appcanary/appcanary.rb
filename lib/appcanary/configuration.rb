@@ -123,5 +123,14 @@ Check out the following links for more information:
         end
       end
     end
+
+    def vulnerable?(criticality = nil); canary.vulnerable?(criticality); end
+    def update_monitor!;                canary.update_monitor!;          end
+    def check;                          canary.check;                    end
+
+    private
+    def canary
+      @@canary ||= Appcanary::Client.new(Appcanary.resolved_config)
+    end
   end
 end

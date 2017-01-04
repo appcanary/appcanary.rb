@@ -10,25 +10,7 @@ The Appcanary ruby gem offers a way to automate your vulnerability checks either
 as part of your Continuous Integration builds, or just programmatically
 elsewhere. It also provides rake tasks for convenience.
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'appcanary'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install appcanary
-
-## Usage
-
-### Quickstart
+## Quickstart
 
 These instructions will get you going on CircleCI with a rails project.
 
@@ -40,15 +22,10 @@ gem "appcanary", :git => "https://github.com/appcanary/appcanary.rb"
 
 `bundle install` it to update your `Gemfile.lock`.
 
-Add a configuration block to your `config/environments/test.rb` file:
+Add some configuration to your `config/initializers/appcanary.rb` file:
 
 ```ruby
-Appcanary.configure do |canary|
-  canary.api_key = ENV["APPCANARY_API_KEY"] || "api key not set"
-  # this is the default value, and can be omitted
-  canary.base_uri = "https://appcanary.com/api/v3"
-  canary.monitor_name = "my_monitor"
-end
+Appcanary.api_key = ENV["APPCANARY_API_KEY"] || "api key not set"
 ```
 
 Now, add the following lines to your `circle.yml` file:
@@ -69,7 +46,7 @@ your [Appcanary settings](https://appcanary.com/settings).
 
 Commit and push your changes, and CircleCI should do the right thing.
 
-### Alternative setups
+## Alternative setups
 
 There are several ways to use the Appcanary gem. The simplest of all is to write
 a small program, in the context of a Bundler managed project, like this:
@@ -101,16 +78,23 @@ Appcanary.configure do |canary|
 end
 ```
 
+This config style is perhaps best suited to use an initializer file in rails
+projects.
+
+Here's a static configuration which is a bit less railsish:
+
+```ruby
+Appcanary.api_key = ENV["APPCANARY_API_KEY"] || "api key not set"
+Appcanary.gemfile_lock = "/path/to/gemfile"
+```
+
 The gem may then be used without instantiating a client, like this:
 
 ```ruby
-if Appcanary::Client.vulnerable? :critical
+if Appcanary.vulnerable? :critical
   puts "I see your shiny attack surface! It BIG!"
 end
 ```
-
-This config style is perhaps best suited to use in your
-`project/config/environments/test.rb` file in rails projects.
 
 Finally, we provide two rake tasks, which are installed automatically in rails
 projects. They are as follows:
@@ -139,6 +123,19 @@ api_token: "xxxxxxxxxxxxxxxxxxxxxxxxxx"
 base_uri: "https://appcanary.com/api/v3"
 monitor_name: "my_monitor"
 ```
+
+## Configuration
+
+As we've seen, you can configure the appcanary gem several different ways. All
+configurations include the following items however.
+
+| Key            | Required? | Description | Notes |
+| -------------- | --------- | ----------- | ----- |
+| `api_key`      | Y         | Your Appcanary API key, found in your [Appcanary settings](https://appcanary.com/settings). | |
+| `gemfile_lock` | N*        | Path to your `Gemfile.lock`, which gets shipped to Appcanary for analysis. | Most of the time you can leave this undefined. *Be warned that the appcanary gem will error if Bundler is not loaded unless this is set. |
+| `monitor_name` | Y*        | The base name for the monitor to be updated. *This is required if and only if you plan to use the `update_monitor` functionality. | If you're running in CI, the gem will attempt to acquire the name of the current branch and append that to your monitor name before sending the update. If a monitor does not already exist, it will be created. If this attribute is unset and the gem is loaded in the context of a Rails application, it will use the rails application name as the monitor name. |
+| `base_uri`     | N         | The url for the Appcanary service endpoint. | You should leave this unset unless you have a very good reason not to. |
+
 
 ## Development
 

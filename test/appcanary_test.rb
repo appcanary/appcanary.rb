@@ -126,20 +126,20 @@ describe Appcanary do
       end
 
       it "is not itself vulnerable" do
-        assert(!Appcanary::Client.vulnerable?)
+        assert(!Appcanary.vulnerable?)
       end
 
       it "doesn't blow up for good criticalities" do
-        assert(!Appcanary::Client.vulnerable?(:critical))
-        assert(!Appcanary::Client.vulnerable?(:high))
-        assert(!Appcanary::Client.vulnerable?(:medium))
-        assert(!Appcanary::Client.vulnerable?(:low))
-        assert(!Appcanary::Client.vulnerable?(:unknown))
+        assert(!Appcanary.vulnerable?(:critical))
+        assert(!Appcanary.vulnerable?(:high))
+        assert(!Appcanary.vulnerable?(:medium))
+        assert(!Appcanary.vulnerable?(:low))
+        assert(!Appcanary.vulnerable?(:unknown))
       end
 
       describe "#check" do
         it "returns a valid response" do
-          response = Appcanary::Client.check
+          response = Appcanary.check
 
           assert(!response.nil?)
           assert(!response["meta"].nil?)
