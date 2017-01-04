@@ -9,7 +9,7 @@ describe Appcanary do
     describe "static configuration" do
       before do
         Appcanary.configure do |canary|
-          canary.api_token = ENV["APPCANARY_API_TOKEN"]
+          canary.api_key = ENV["APPCANARY_API_KEY"]
           canary.base_uri = ENV["APPCANARY_BASE_URI"] || "https://appcanary.com/api/v3"
           canary.monitor_name = "appcanary.rb"
         end
@@ -46,7 +46,8 @@ describe Appcanary do
     describe "creating an instance" do
       before do
         config = {
-          api_token: ENV["APPCANARY_API_TOKEN"],
+          api_key: ENV["APPCANARY_API_KEY"],
+          gemfile_lock: Bundler.default_lockfile,
           base_uri: ENV["APPCANARY_BASE_URI"] || "https://appcanary.com/api/v3",
           monitor_name: "appcanary.rb"
         }
@@ -86,7 +87,7 @@ describe Appcanary do
   describe "configuration" do
     before do
       Appcanary.configure do |c|
-        c.api_token = "xxx"
+        c.api_key = "xxx"
         c.base_uri = "donkey"
         c.monitor_name = "simon"
       end
@@ -97,7 +98,7 @@ describe Appcanary do
     end
 
     it "reflects its configuration" do
-      Appcanary.configuration.api_token.must_equal "xxx"
+      Appcanary.configuration.api_key.must_equal "xxx"
       Appcanary.configuration.base_uri.must_equal "donkey"
       Appcanary.configuration.monitor_name.must_equal "simon"
     end

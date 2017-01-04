@@ -44,7 +44,7 @@ Add a configuration block to your `config/environments/test.rb` file:
 
 ```ruby
 Appcanary.configure do |canary|
-  canary.api_token = ENV["APPCANARY_API_TOKEN"] || "token not set"
+  canary.api_key = ENV["APPCANARY_API_KEY"] || "api key not set"
   # this is the default value, and can be omitted
   canary.base_uri = "https://appcanary.com/api/v3"
   canary.monitor_name = "my_monitor"
@@ -63,8 +63,8 @@ dependencies:
     - bundle exec rake appcanary:update_monitor
 ```
 
-Don't forget to add the `APPCANARY_API_TOKEN` environment variable in your
-project settings in the CircleCI web app. You can find your API token in
+Don't forget to add the `APPCANARY_API_KEY` environment variable in your
+project settings in the CircleCI web app. You can find your API key in
 your [Appcanary settings](https://appcanary.com/settings).
 
 Commit and push your changes, and CircleCI should do the right thing.
@@ -79,7 +79,7 @@ require "appcanary"
 
 config = {
   base_uri: "https://appcanary.com/api/v3",
-  api_token: "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  api_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
   monitor_name: "my_monitor"
 }
 
@@ -95,7 +95,7 @@ idiom:
 
 ```ruby
 Appcanary.configure do |canary|
-  canary.api_token = ENV["APPCANARY_API_TOKEN"] || "token not set"
+  canary.api_key = ENV["APPCANARY_API_KEY"] || "api key not set"
   canary.base_uri = "https://appcanary.com/api/v3"
   canary.monitor_name = "my_monitor"
 end

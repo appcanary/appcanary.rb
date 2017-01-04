@@ -81,7 +81,7 @@ module Appcanary
           end
         end
 
-        headers = {"Authorization" => "Token #{config[:api_token]}"}
+        headers = {"Authorization" => "Token #{config[:api_key]}"}
         req = request_type.new(url.path, params, headers, SecureRandom.base64)
         options = { use_ssl: url.scheme == "https" }
 
