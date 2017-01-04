@@ -1,0 +1,102 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "appcanary"
+require "optparse"
+
+class AppcanaryCLI
+  class << self
+    def api_key_opt(opts)
+      opts.on("-a", "--api-key API_KEY", :REQUIRED,
+              "Your Appcanary API key. Find it at https://appcanary.com/settings") do |ak|
+        Appcanary.api_key = ak
+      end
+    end
+
+    def gemfile_lock_opt(opts)
+      opts.on("-g", "--gemfile-lock GEMFILE_LOCK", :OPTIONAL,
+              "Path to the Gemfile.lock to ship to Appcanary") do |gl|
+        Appcanary.gemfile_lock = gl
+      end
+    end
+
+    def base_uri_opt(opts)
+      opts.on("-b", "--base-uri BASE_URI", :OPTIONAL,
+              "The URL for the Appcanary endpoint to use.") do |bu|
+        Appcanary.base_uri = bu
+      end
+    end
+
+    def monitor_name_opt(opts)
+      opts.on("-m", "--monitor-name MONITOR_NAME", :REQUIRED,
+              "The name of the Appcanary monitor to update.") do |mn|
+        Appcanary.monitor_name = mn
+      end
+    end
+
+    def parse
+      top_level_help = <<-HELP
+Subcommands are:
+  check  -  Check your gem bundle for vulnerabilities
+  update -  Update an Appcanary monitor
+
+See "appcanary COMMAND --help" for more information about a specific command.
+      HELP
+
+      common = OptionParser.new do |opts|
+        opts.banner = "Usage: appcanary check|update [options]"
+        opts.separator ""
+        opts.separator top_level_help
+      end
+
+      subcommands = {
+        "update" => OptionParser.new do |opts|
+          opts.banner = "Usage: update [options]"
+          api_key_opt(opts)
+          base_uri_opt(opts)
+          gemfile_lock_opt(opts)
+          monitor_name_opt(opts)
+        end,
+        "check" => OptionParser.new do |opts|
+          opts.banner = "Usage: check [options]"
+          api_key_opt(opts)
+          base_uri_opt(opts)
+          gemfile_lock_opt(opts)
+        end
+      }
+
+      common.order!
+
+      command = ARGV.shift
+      if command.nil?
+        puts "No subcommand found -- try appcanary --help"
+      else
+        subcommands[command].order!
+      end
+
+      command
+    end
+  end
+end
+
+def run_check
+  response = Appcanary.check
+  if response["meta"]["vulnerable"]
+    response["included"].map do |vuln|
+      vuln["attributes"]["reference-ids"]
+    end.flatten.uniq.each do |ref|
+      puts ref
+    end
+  end
+end
+
+def run_appcanary_command
+  case AppcanaryCLI.parse
+  when "update"
+    Appcanary.update_monitor!
+  when "check"
+    run_check
+  end
+end
+
+run_appcanary_command
