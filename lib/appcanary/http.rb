@@ -23,6 +23,8 @@ module Appcanary
     end
 
     def ship_file(endpoint, payload, config)
+      Appcanary.check_runtime_config!(endpoint, config)
+
       resp = try_request_with(:put, endpoint, payload, config)
 
       unless resp.code.to_s == "200"

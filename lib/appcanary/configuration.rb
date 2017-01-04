@@ -8,11 +8,11 @@ module Appcanary
 
     def initialize
       self.base_uri = APPCANARY_DEFAULT_BASE_URI
-      self.monitor_name = maybe_guess_name
+      self.monitor_name = maybe_guess_monitor_name
       self.gemfile_lock = locate_gemfile_lock
     end
 
-    def maybe_guess_name
+    def maybe_guess_monitor_name
       Rails.application.class.parent_name if defined?(Rails)
     end
 
@@ -31,11 +31,19 @@ module Appcanary
     end
 
     def valid?
-      ! (base_uri.nil? || api_key.nil? || monitor_name.nil? || gemfile_lock.nil?)
+      ! (base_uri.nil? || api_key.nil? || gemfile_lock.nil?)
     end
   end
 
   class ConfigurationError < RuntimeError
+    def initialize(msg)
+      super(msg + <<-FOOTER)
+
+Check out the following links for more information:
+- https://github.com/appcanary/appcanary.rb
+- https://appcanary.com/settings
+      FOOTER
+    end
   end
 
   class << self
@@ -52,10 +60,17 @@ module Appcanary
     end
 
     # another way to do static configuration
-    def api_key=(val);      configuration.api_key = val; end
-    def gemfile_lock=(val); configuration.api_key = val; end
-    def monitor_name=(val); configuration.api_key = val; end
-    def base_uri=(val);     configuration.api_key = val; end
+    def api_key=(val);      configuration.api_key = val;      end
+    def gemfile_lock=(val); configuration.gemfile_lock = val; end
+    def monitor_name=(val); configuration.monitor_name = val; end
+    def base_uri=(val);     configuration.base_uri = val;     end
+
+    # throws if config is broken
+    def check_runtime_config!(endpoint, config)
+      if endpoint == :monitors && config[:monitor_name].nil?
+        raise Appcanary::ConfigurationError.new("Appcanary.monitor_name = ???")
+      end
+    end
 
     def resolved_config
       # 1. static configuration takes precedence over yaml, and only one may be
@@ -90,13 +105,21 @@ module Appcanary
             m[:monitor_name] = yaml_config["monitor_name"]
             m[:base_uri]     = yaml_config["base_uri"] || APPCANARY_DEFAULT_BASE_URI
           rescue Errno::ENOENT
-            raise ConfigurationError.new("No configuration found")
+            raise ConfigurationError.new("No valid configuration found")
           rescue => e
             raise ConfigurationError.new(e)
           end
         else
           raise ConfigurationError.new(
                   "Bundler is not available and no valid static config exists, can't find Gemfile.lock")
+        end
+
+        # UX for validation
+        errors = []
+        errors << "Appcanary.api_key = ???" if m[:api_key].nil?
+        errors << "Appcanary.gemfile_lock = ???" if m[:gemfile_lock].nil?
+        unless errors.empty?
+          raise ConfigurationError.new("Missing configuration:\n\n#{errors.join("\n")}")
         end
       end
     end
