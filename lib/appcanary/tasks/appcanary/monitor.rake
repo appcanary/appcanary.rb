@@ -5,11 +5,11 @@ namespace :appcanary do
   desc "Update the appcanary monitor for this project"
   if defined?(Rails)
     task :update_monitor => :environment do
-      Appcanary::Client.update_monitor!
+      Appcanary.update_monitor!
     end
   else
     task :update_monitor do
-      Appcanary::Client.update_monitor!
+      Appcanary.update_monitor!
     end
   end
 end
