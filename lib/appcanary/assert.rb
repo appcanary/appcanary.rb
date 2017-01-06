@@ -25,7 +25,7 @@ module Appcanary
     end
 
     def check(&block)
-      response = ship_gemfile(:check, config)
+      response = ship_gemfile(:check, config.resolved)
 
       if block
         block.call(response)
@@ -35,7 +35,11 @@ module Appcanary
     end
 
     def update_monitor!
-      ship_gemfile(:monitors, config)
+      if config.sufficient_for_monitor?
+        ship_gemfile(:monitors, config.resolved)
+      else
+        raise Appcanary::ConfigurationError.new("Appcanary.monitor_name = ???")
+      end
     end
 
     private

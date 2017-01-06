@@ -9,7 +9,7 @@ describe Appcanary do
     describe "with defaults (except api_key)" do
       it "resolves a good config" do
         Appcanary.api_key = "hello world"
-        config = Appcanary.resolved_config
+        config = Appcanary.configuration.resolved
         assert(!config.nil?)
         assert(config.include? :api_key)
         assert(config.include? :base_uri)
@@ -22,18 +22,14 @@ describe Appcanary do
         assert(config[:monitor_name].nil?)
       end
 
-      it "fails runtime validation for sending a monitor" do
+      it "fails validation for monitors" do
         Appcanary.api_key = "hello world"
-        config = Appcanary.resolved_config
-        assert_raises(Appcanary::ConfigurationError) {
-          Appcanary.check_runtime_config!(:monitors, config)
-        }
+        assert(!Appcanary.configuration.sufficient_for_monitor?)
       end
 
-      it "passes runtime validation for doing a check" do
+      it "validates for checks" do
         Appcanary.api_key = "hello world"
-        config = Appcanary.resolved_config
-        assert(Appcanary.check_runtime_config!(:check, config).nil?)
+        assert(Appcanary.configuration.sufficient_for_check?)
       end
     end
 
@@ -57,18 +53,18 @@ describe Appcanary do
       end
 
       it "resolves correctly" do
-        config = Appcanary.resolved_config
-        refute_nil(config)
-        refute_nil(config[:api_key])
-        refute_nil(config[:base_uri])
-        refute_nil(config[:monitor_name])
-        refute_nil(config[:gemfile_lock_path])
+        config_hash = Appcanary.configuration.resolved
+        refute_nil(config_hash)
+        refute_nil(config_hash[:api_key])
+        refute_nil(config_hash[:base_uri])
+        refute_nil(config_hash[:monitor_name])
+        refute_nil(config_hash[:gemfile_lock_path])
       end
 
-      it "passes runtime validation" do
-        config = Appcanary.resolved_config
-        assert_nil(Appcanary.check_runtime_config!(:monitors, config))
-        assert_nil(Appcanary.check_runtime_config!(:check, config))
+      it "validates for monitors and checks" do
+        config = Appcanary.configuration
+        assert(config.sufficient_for_monitor?)
+        assert(config.sufficient_for_check?)
       end
     end
 
@@ -95,18 +91,18 @@ describe Appcanary do
       end
 
       it "resolves correctly" do
-        config = Appcanary.resolved_config
-        refute_nil(config)
-        refute_nil(config[:api_key])
-        refute_nil(config[:base_uri])
-        refute_nil(config[:monitor_name])
-        refute_nil(config[:gemfile_lock_path])
+        config_hash = Appcanary.configuration.resolved
+        refute_nil(config_hash)
+        refute_nil(config_hash[:api_key])
+        refute_nil(config_hash[:base_uri])
+        refute_nil(config_hash[:monitor_name])
+        refute_nil(config_hash[:gemfile_lock_path])
       end
 
-      it "passes runtime validation" do
-        config = Appcanary.resolved_config
-        assert_nil(Appcanary.check_runtime_config!(:monitors, config))
-        assert_nil(Appcanary.check_runtime_config!(:check, config))
+      it "validates for monitors and checks" do
+        config = Appcanary.configuration
+        assert(config.sufficient_for_monitor?)
+        assert(config.sufficient_for_check?)
       end
     end
   end
@@ -151,12 +147,11 @@ describe Appcanary do
 
     describe "creating an instance" do
       before do
-        config = {
-          api_key: ENV["APPCANARY_API_KEY"],
-          gemfile_lock_path: Bundler.default_lockfile,
-          base_uri: ENV["APPCANARY_BASE_URI"] || "https://appcanary.com/api/v3",
-          monitor_name: "appcanary.rb"
-        }
+        config = Appcanary::Configuration.new
+        config.api_key = ENV["APPCANARY_API_KEY"]
+        config.gemfile_lock_path = Bundler.default_lockfile
+        config.base_uri = ENV["APPCANARY_BASE_URI"] || "https://appcanary.com/api/v3"
+        config.monitor_name = "appcanary.rb"
 
         @canary = Appcanary::Client.new(config)
       end

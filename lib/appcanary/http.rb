@@ -6,10 +6,12 @@ module Appcanary
   class ServiceError < RuntimeError
   end
 
+  # In this module, `config` should always be a hash, typically obtained by
+  # calling `Appcanary::Configuration#resolved`.
   module HTTP
     def ship_gemfile(endpoint, config, &block)
       payload = {
-        file: Bundler.default_lockfile,
+        file: config[:gemfile_lock_path],
         platform: "ruby"
       }
 
@@ -23,8 +25,6 @@ module Appcanary
     end
 
     def ship_file(endpoint, payload, config)
-      Appcanary.check_runtime_config!(endpoint, config)
-
       resp = try_request_with(:put, endpoint, payload, config)
 
       unless resp.code.to_s == "200"
