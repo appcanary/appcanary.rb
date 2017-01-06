@@ -9,17 +9,16 @@ describe Appcanary do
     describe "with defaults (except api_key)" do
       it "resolves a good config" do
         Appcanary.api_key = "hello world"
-        config = Appcanary.configuration.resolved
-        assert(!config.nil?)
-        assert(config.include? :api_key)
-        assert(config.include? :base_uri)
-        assert(config.include? :gemfile_lock_path)
-        assert(config.include? :monitor_name)
+        config = Appcanary.configuration.resolve!
+        refute_nil(config)
+        refute_nil(config[:api_key])
+        refute_nil(config[:base_uri])
+        refute_nil(config[:gemfile_lock_path])
 
         assert(config[:api_key] == "hello world")
         assert(config[:base_uri] == Appcanary::APPCANARY_DEFAULT_BASE_URI)
         assert(config[:gemfile_lock_path] == Bundler.default_lockfile)
-        assert(config[:monitor_name].nil?)
+        assert_nil(config[:monitor_name])
       end
 
       it "fails validation for monitors" do
@@ -53,16 +52,16 @@ describe Appcanary do
       end
 
       it "resolves correctly" do
-        config_hash = Appcanary.configuration.resolved
-        refute_nil(config_hash)
-        refute_nil(config_hash[:api_key])
-        refute_nil(config_hash[:base_uri])
-        refute_nil(config_hash[:monitor_name])
-        refute_nil(config_hash[:gemfile_lock_path])
+        config = Appcanary.configuration.resolve!
+        refute_nil(config)
+        refute_nil(config[:api_key])
+        refute_nil(config[:base_uri])
+        refute_nil(config[:monitor_name])
+        refute_nil(config[:gemfile_lock_path])
       end
 
       it "validates for monitors and checks" do
-        config = Appcanary.configuration
+        config = Appcanary.configuration.resolve!
         assert(config.sufficient_for_monitor?)
         assert(config.sufficient_for_check?)
       end
@@ -83,7 +82,7 @@ describe Appcanary do
       end
 
       it "reflects its configuration" do
-        config = Appcanary.configuration
+        config = Appcanary.configuration.resolve!
         config.api_key.must_equal "xxx"
         config.base_uri.must_equal "donkey"
         config.monitor_name.must_equal "simon"
@@ -91,16 +90,16 @@ describe Appcanary do
       end
 
       it "resolves correctly" do
-        config_hash = Appcanary.configuration.resolved
-        refute_nil(config_hash)
-        refute_nil(config_hash[:api_key])
-        refute_nil(config_hash[:base_uri])
-        refute_nil(config_hash[:monitor_name])
-        refute_nil(config_hash[:gemfile_lock_path])
+        config = Appcanary.configuration.resolve!
+        refute_nil(config)
+        refute_nil(config[:api_key])
+        refute_nil(config[:base_uri])
+        refute_nil(config[:monitor_name])
+        refute_nil(config[:gemfile_lock_path])
       end
 
       it "validates for monitors and checks" do
-        config = Appcanary.configuration
+        config = Appcanary.configuration.resolve!
         assert(config.sufficient_for_monitor?)
         assert(config.sufficient_for_check?)
       end

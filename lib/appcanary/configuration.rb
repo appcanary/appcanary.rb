@@ -6,6 +6,10 @@ module Appcanary
   class Configuration
     attr_accessor :base_uri, :api_key, :monitor_name, :gemfile_lock_path
 
+    def [](k)
+      self.send(k.to_s)
+    end
+
     def initialize
       self.base_uri = APPCANARY_DEFAULT_BASE_URI
       self.monitor_name = maybe_guess_monitor_name
@@ -35,7 +39,7 @@ module Appcanary
       sufficient_for_check? && !monitor_name.nil?
     end
 
-    def resolved
+    def resolve!
       # 1. static configuration takes precedence over yaml, and only one may be
       #    used. If the configuration block is present and valid, use it
       #    exclusively, otherwise looks for yaml.
@@ -54,37 +58,37 @@ module Appcanary
       #
       #    - base_uri: if this is missing (as it probably should be in all cases
       #      except working on this gem), default to prod appcanary.com.
-      {}.tap do |m|
-        if self.sufficient_for_check?
-          m[:api_key]           = api_key
-          m[:gemfile_lock_path] = gemfile_lock_path
-          m[:monitor_name]      = monitor_name
-          m[:base_uri]          = base_uri
-        elsif defined?(Bundler)
-          begin
-            yaml_config           = YAML.load_file("#{Bundler.root}/appcanary.yml")
-            m[:api_key]           = yaml_config["api_key"]
-            m[:gemfile_lock_path] = yaml_config["gemfile_lock_path"]
-            m[:monitor_name]      = yaml_config["monitor_name"]
-            m[:base_uri]          = yaml_config["base_uri"] || APPCANARY_DEFAULT_BASE_URI
-          rescue Errno::ENOENT
-            raise ConfigurationError.new("No valid configuration found")
-          rescue => e
-            raise ConfigurationError.new(e)
-          end
-        else
-          raise ConfigurationError.new(
-                  "We couldn't find any Gemfile.locks to report on! Don't forget to configure it.")
+      if self.sufficient_for_check?
+        self.api_key           = api_key
+        self.gemfile_lock_path = gemfile_lock_path
+        self.monitor_name      = monitor_name
+        self.base_uri          = base_uri
+      elsif defined?(Bundler)
+        begin
+          yaml_config            = YAML.load_file("#{Bundler.root}/appcanary.yml")
+          self.api_key           = yaml_config["api_key"]
+          self.gemfile_lock_path = yaml_config["gemfile_lock_path"]
+          self.monitor_name      = yaml_config["monitor_name"]
+          self.base_uri          = yaml_config["base_uri"] || APPCANARY_DEFAULT_BASE_URI
+        rescue Errno::ENOENT
+          raise ConfigurationError.new("No valid configuration found")
+        rescue => e
+          raise ConfigurationError.new(e)
         end
-
-        # UX for validation
-        errors = []
-        errors << "Appcanary.api_key = ???" if m[:api_key].nil?
-        errors << "Appcanary.gemfile_lock_path = ???" if m[:gemfile_lock_path].nil?
-        unless errors.empty?
-          raise ConfigurationError.new("Missing configuration:\n\n#{errors.join("\n")}")
-        end
+      else
+        raise ConfigurationError.new(
+                "We couldn't find any Gemfile.locks to report on! Don't forget to configure it.")
       end
+
+      # UX for validation
+      errors = []
+      errors << "Appcanary.api_key = ???" if api_key.nil?
+      errors << "Appcanary.gemfile_lock_path = ???" if gemfile_lock_path.nil?
+      unless errors.empty?
+        raise ConfigurationError.new("Missing configuration:\n\n#{errors.join("\n")}")
+      end
+
+      self
     end
   end
 
@@ -127,7 +131,7 @@ Consult the following docs for more information:
 
     private
     def canary
-      @@canary ||= Appcanary::Client.new(Appcanary.configuration)
+      @@canary ||= Appcanary::Client.new(Appcanary.configuration.resolve!)
     end
   end
 end
