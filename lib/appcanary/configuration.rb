@@ -17,16 +17,13 @@ module Appcanary
     end
 
     def locate_gemfile_lockfile
-      if defined?(Bundler)
-        Bundler.default_lockfile
-      else
-        begin
-          require "bundler"
-          locate_gemfile_lockfile
-        rescue LoadError
-          # ignore, handle at resolution time
-          return
+      begin
+        require "bundler"
+        if defined?(Bundler)
+          Bundler.default_lockfile
         end
+      rescue LoadError
+        # ignore, handle at resolution time
       end
     end
 
