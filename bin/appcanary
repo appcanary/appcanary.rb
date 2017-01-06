@@ -16,7 +16,7 @@ class AppcanaryCLI
     def gemfile_lock_opt(opts)
       opts.on("-g", "--gemfile-lock GEMFILE_LOCK", :OPTIONAL,
               "Path to the Gemfile.lock to ship to Appcanary") do |gl|
-        Appcanary.gemfile_lock = gl
+        Appcanary.gemfile_lock_path = gl
       end
     end
 
