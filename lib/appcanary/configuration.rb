@@ -4,25 +4,25 @@ module Appcanary
   APPCANARY_DEFAULT_BASE_URI = "https://appcanary.com/api/v3"
 
   class Configuration
-    attr_accessor :base_uri, :api_key, :monitor_name, :gemfile_lock
+    attr_accessor :base_uri, :api_key, :monitor_name, :gemfile_lock_path
 
     def initialize
       self.base_uri = APPCANARY_DEFAULT_BASE_URI
       self.monitor_name = maybe_guess_monitor_name
-      self.gemfile_lock = locate_gemfile_lock
+      self.gemfile_lock_path = locate_gemfile_lockfile
     end
 
     def maybe_guess_monitor_name
       Rails.application.class.parent_name if defined?(Rails)
     end
 
-    def locate_gemfile_lock
+    def locate_gemfile_lockfile
       if defined?(Bundler)
         Bundler.default_lockfile
       else
         begin
           require "bundler"
-          locate_gemfile_lock
+          locate_gemfile_lockfile
         rescue LoadError
           # ignore, handle at resolution time
           return
@@ -31,7 +31,7 @@ module Appcanary
     end
 
     def valid?
-      ! (base_uri.nil? || api_key.nil? || gemfile_lock.nil?)
+      ! (base_uri.nil? || api_key.nil? || gemfile_lock_path.nil?)
     end
   end
 
@@ -60,10 +60,10 @@ Check out the following links for more information:
     end
 
     # another way to do static configuration
-    def api_key=(val);      configuration.api_key = val;      end
-    def gemfile_lock=(val); configuration.gemfile_lock = val; end
-    def monitor_name=(val); configuration.monitor_name = val; end
-    def base_uri=(val);     configuration.base_uri = val;     end
+    def api_key=(val);           configuration.api_key = val;           end
+    def gemfile_lock_path=(val); configuration.gemfile_lock_path = val; end
+    def monitor_name=(val);      configuration.monitor_name = val;      end
+    def base_uri=(val);          configuration.base_uri = val;          end
 
     # throws if config is broken
     def check_runtime_config!(endpoint, config)
@@ -80,9 +80,9 @@ Check out the following links for more information:
       # 2. within that context, use the following rules
       #    - api_key: required, no attempt to guess/derive
       #
-      #    - gemfile_lock: path to Gemfile.lock; if missing, attempt to guess
-      #      based on Bundler (if defined -- if not, attempt to require it, and
-      #      fail angrily if that doesn't work).
+      #    - gemfile_lock_path: path to Gemfile.lock; if missing, attempt to
+      #      guess based on Bundler (if defined -- if not, attempt to require
+      #      it, and fail angrily if that doesn't work).
       #
       #    - monitor_name: name to use as the base for the monitor update. If
       #      this is missing, attempt to derive it by finding the rails app name
@@ -93,17 +93,17 @@ Check out the following links for more information:
       #      except working on this gem), default to prod appcanary.com.
       {}.tap do |m|
         if Appcanary.configuration.valid?
-          m[:api_key]      = Appcanary.configuration.api_key
-          m[:gemfile_lock] = Appcanary.configuration.gemfile_lock
-          m[:monitor_name] = Appcanary.configuration.monitor_name
-          m[:base_uri]     = Appcanary.configuration.base_uri
+          m[:api_key]           = Appcanary.configuration.api_key
+          m[:gemfile_lock_path] = Appcanary.configuration.gemfile_lock_path
+          m[:monitor_name]      = Appcanary.configuration.monitor_name
+          m[:base_uri]          = Appcanary.configuration.base_uri
         elsif defined?(Bundler)
           begin
-            yaml_config      = YAML.load_file("#{Bundler.root}/appcanary.yml")
-            m[:api_key]      = yaml_config["api_key"]
-            m[:gemfile_lock] = yaml_config["gemfile_lock"]
-            m[:monitor_name] = yaml_config["monitor_name"]
-            m[:base_uri]     = yaml_config["base_uri"] || APPCANARY_DEFAULT_BASE_URI
+            yaml_config           = YAML.load_file("#{Bundler.root}/appcanary.yml")
+            m[:api_key]           = yaml_config["api_key"]
+            m[:gemfile_lock_path] = yaml_config["gemfile_lock_path"]
+            m[:monitor_name]      = yaml_config["monitor_name"]
+            m[:base_uri]          = yaml_config["base_uri"] || APPCANARY_DEFAULT_BASE_URI
           rescue Errno::ENOENT
             raise ConfigurationError.new("No valid configuration found")
           rescue => e
@@ -117,7 +117,7 @@ Check out the following links for more information:
         # UX for validation
         errors = []
         errors << "Appcanary.api_key = ???" if m[:api_key].nil?
-        errors << "Appcanary.gemfile_lock = ???" if m[:gemfile_lock].nil?
+        errors << "Appcanary.gemfile_lock_path = ???" if m[:gemfile_lock_path].nil?
         unless errors.empty?
           raise ConfigurationError.new("Missing configuration:\n\n#{errors.join("\n")}")
         end

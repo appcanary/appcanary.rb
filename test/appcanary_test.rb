@@ -13,12 +13,12 @@ describe Appcanary do
         assert(!config.nil?)
         assert(config.include? :api_key)
         assert(config.include? :base_uri)
-        assert(config.include? :gemfile_lock)
+        assert(config.include? :gemfile_lock_path)
         assert(config.include? :monitor_name)
 
         assert(config[:api_key] == "hello world")
         assert(config[:base_uri] == Appcanary::APPCANARY_DEFAULT_BASE_URI)
-        assert(config[:gemfile_lock] == Bundler.default_lockfile)
+        assert(config[:gemfile_lock_path] == Bundler.default_lockfile)
         assert(config[:monitor_name].nil?)
       end
 
@@ -42,7 +42,7 @@ describe Appcanary do
         Appcanary.api_key = "xxx"
         Appcanary.base_uri = "donkey"
         Appcanary.monitor_name = "simon"
-        Appcanary.gemfile_lock = "/etc/passwd"
+        Appcanary.gemfile_lock_path = "/etc/passwd"
       end
 
       after do
@@ -53,7 +53,7 @@ describe Appcanary do
         Appcanary.configuration.api_key.must_equal "xxx"
         Appcanary.configuration.base_uri.must_equal "donkey"
         Appcanary.configuration.monitor_name.must_equal "simon"
-        Appcanary.configuration.gemfile_lock.must_equal "/etc/passwd"
+        Appcanary.configuration.gemfile_lock_path.must_equal "/etc/passwd"
       end
 
       it "resolves correctly" do
@@ -62,7 +62,7 @@ describe Appcanary do
         refute_nil(config[:api_key])
         refute_nil(config[:base_uri])
         refute_nil(config[:monitor_name])
-        refute_nil(config[:gemfile_lock])
+        refute_nil(config[:gemfile_lock_path])
       end
 
       it "passes runtime validation" do
@@ -78,7 +78,7 @@ describe Appcanary do
           c.api_key = "xxx"
           c.base_uri = "donkey"
           c.monitor_name = "simon"
-          c.gemfile_lock = "/etc/passwd"
+          c.gemfile_lock_path = "/etc/passwd"
         end
       end
 
@@ -91,7 +91,7 @@ describe Appcanary do
         config.api_key.must_equal "xxx"
         config.base_uri.must_equal "donkey"
         config.monitor_name.must_equal "simon"
-        config.gemfile_lock.must_equal "/etc/passwd"
+        config.gemfile_lock_path.must_equal "/etc/passwd"
       end
 
       it "resolves correctly" do
@@ -100,7 +100,7 @@ describe Appcanary do
         refute_nil(config[:api_key])
         refute_nil(config[:base_uri])
         refute_nil(config[:monitor_name])
-        refute_nil(config[:gemfile_lock])
+        refute_nil(config[:gemfile_lock_path])
       end
 
       it "passes runtime validation" do
@@ -153,7 +153,7 @@ describe Appcanary do
       before do
         config = {
           api_key: ENV["APPCANARY_API_KEY"],
-          gemfile_lock: Bundler.default_lockfile,
+          gemfile_lock_path: Bundler.default_lockfile,
           base_uri: ENV["APPCANARY_BASE_URI"] || "https://appcanary.com/api/v3",
           monitor_name: "appcanary.rb"
         }
