@@ -38,7 +38,7 @@ module Appcanary
   class ConfigurationError < RuntimeError
     SUFFIX = <<-EOS
 
-Check out the following links for more information:
+Consult the following docs for more information:
 - https://github.com/appcanary/appcanary.rb
 - https://appcanary.com/settings
     EOS
@@ -113,7 +113,7 @@ Check out the following links for more information:
           end
         else
           raise ConfigurationError.new(
-                  "Bundler is not available and no valid static config exists, can't find Gemfile.lock")
+                  "We couldn't find any Gemfile.locks to report on! Don't forget to configure it.")
         end
 
         # UX for validation
