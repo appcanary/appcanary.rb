@@ -30,19 +30,21 @@ module Appcanary
       end
     end
 
-    def valid?
+    def sufficient_for_checks?
       ! (base_uri.nil? || api_key.nil? || gemfile_lock_path.nil?)
     end
   end
 
   class ConfigurationError < RuntimeError
-    def initialize(msg)
-      super(msg + <<-FOOTER)
+    SUFFIX = <<-EOS
 
 Check out the following links for more information:
 - https://github.com/appcanary/appcanary.rb
 - https://appcanary.com/settings
-      FOOTER
+    EOS
+
+    def initialize(msg)
+      super(msg + SUFFIX)
     end
   end
 
@@ -92,7 +94,7 @@ Check out the following links for more information:
       #    - base_uri: if this is missing (as it probably should be in all cases
       #      except working on this gem), default to prod appcanary.com.
       {}.tap do |m|
-        if Appcanary.configuration.valid?
+        if Appcanary.configuration.sufficient_for_checks?
           m[:api_key]           = Appcanary.configuration.api_key
           m[:gemfile_lock_path] = Appcanary.configuration.gemfile_lock_path
           m[:monitor_name]      = Appcanary.configuration.monitor_name
