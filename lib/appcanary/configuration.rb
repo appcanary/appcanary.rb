@@ -66,12 +66,7 @@ module Appcanary
       #
       #    - base_uri: if this is missing (as it probably should be in all cases
       #      except working on this gem), default to prod appcanary.com.
-      if self.sufficient_for_check?
-        self.api_key           = api_key
-        self.gemfile_lock_path = gemfile_lock_path
-        self.monitor_name      = monitor_name
-        self.base_uri          = base_uri
-      else
+      unless self.sufficient_for_check?
         yaml_file = "#{Dir.pwd}/#{APPCANARY_YAML}"
         if File.exist?(yaml_file)
           begin

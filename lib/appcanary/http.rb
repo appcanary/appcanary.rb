@@ -6,8 +6,8 @@ module Appcanary
   class ServiceError < RuntimeError
   end
 
-  # In this module, `config` should always be a hash, typically obtained by
-  # calling `Appcanary::Configuration#resolved`.
+  # In this module, `config` should always be a hash, or an object that responds
+  # to `[](k)`, typically obtained by calling `Appcanary::Configuration#resolve!`.
   module HTTP
     def ship_gemfile(endpoint, config, &block)
       payload = {
