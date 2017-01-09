@@ -17,7 +17,7 @@ describe Appcanary do
 
         assert(config[:api_key] == "hello world")
         assert(config[:base_uri] == Appcanary::APPCANARY_DEFAULT_BASE_URI)
-        assert(config[:gemfile_lock_path] == Bundler.default_lockfile)
+        assert(config[:gemfile_lock_path] == "#{Bundler.default_lockfile}")
         assert_nil(config[:monitor_name])
       end
 
