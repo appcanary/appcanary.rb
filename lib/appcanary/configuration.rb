@@ -139,9 +139,17 @@ Consult the following docs for more information:
     def base_uri=(val);          configuration.base_uri = val;          end
 
     # static API
-    def vulnerable?(criticality = nil); canary.vulnerable?(criticality); end
-    def update_monitor!;                canary.update_monitor!;          end
-    def check;                          canary.check;                    end
+    def is_this_app_vulnerable?(criticality = nil)
+      canary.is_this_app_vulnerable?(criticality)
+    end
+
+    def update_monitor!
+      canary.update_monitor!
+    end
+
+    def check
+      canary.check
+    end
 
     private
     def canary
