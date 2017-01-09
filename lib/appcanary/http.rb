@@ -6,10 +6,12 @@ module Appcanary
   class ServiceError < RuntimeError
   end
 
+  # In this module, `config` should always be a hash, or an object that responds
+  # to `[](k)`, typically obtained by calling `Appcanary::Configuration#resolve!`.
   module HTTP
     def ship_gemfile(endpoint, config, &block)
       payload = {
-        file: Bundler.default_lockfile,
+        file: config[:gemfile_lock_path],
         platform: "ruby"
       }
 
@@ -81,7 +83,7 @@ module Appcanary
           end
         end
 
-        headers = {"Authorization" => "Token #{config[:api_token]}"}
+        headers = {"Authorization" => "Token #{config[:api_key]}"}
         req = request_type.new(url.path, params, headers, SecureRandom.base64)
         options = { use_ssl: url.scheme == "https" }
 

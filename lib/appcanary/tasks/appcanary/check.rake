@@ -2,7 +2,7 @@ require "appcanary"
 require "rake"
 
 def run_check
-  response = Appcanary::Client.check
+  response = Appcanary.check
   if response["meta"]["vulnerable"]
     response["included"].map do |vuln|
       vuln["attributes"]["reference-ids"]

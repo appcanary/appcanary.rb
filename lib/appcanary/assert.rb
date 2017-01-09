@@ -35,17 +35,10 @@ module Appcanary
     end
 
     def update_monitor!
-      ship_gemfile(:monitors, config)
-    end
-
-    class << self
-      def vulnerable?(criticality = nil); canary.vulnerable?(criticality); end
-      def update_monitor!;                canary.update_monitor!;          end
-      def check;                          canary.check;                    end
-
-      private
-      def canary
-        @@canary ||= self.new(Appcanary.resolved_config)
+      if config.sufficient_for_monitor?
+        ship_gemfile(:monitors, config)
+      else
+        raise Appcanary::ConfigurationError.new("Appcanary.monitor_name = ???")
       end
     end
 
