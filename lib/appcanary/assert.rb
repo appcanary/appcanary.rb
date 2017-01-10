@@ -10,7 +10,7 @@ module Appcanary
       @config = config
     end
 
-    def vulnerable?(criticality = nil)
+    def is_this_app_vulnerable?(criticality = nil)
       check do |response|
         vulnerable = response["meta"]["vulnerable"]
         if vulnerable == true || vulnerable == "true"

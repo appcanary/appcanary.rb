@@ -68,24 +68,19 @@ module Appcanary
       #      except working on this gem), default to prod appcanary.com.
       unless self.sufficient_for_check?
         yaml_file = "#{Dir.pwd}/#{APPCANARY_YAML}"
-        if File.exist?(yaml_file)
-          begin
-            load_yaml_config!(yaml_file)
-          rescue
-            load_yaml_config!("#{Bundler.root}/#{APPCANARY_YAML}") if defined?(Bundler)
-          end
-        else
-          raise ConfigurationError.new(
-                  "We couldn't find any Gemfile.locks to report on! Don't forget to configure it.")
+        begin
+          load_yaml_config!(yaml_file)
+        rescue
+          load_yaml_config!("#{Bundler.root}/#{APPCANARY_YAML}") if defined?(Bundler)
         end
       end
 
       # UX for validation
       errors = []
-      errors << "Appcanary.api_key = ???" if api_key.nil?
-      errors << "Appcanary.gemfile_lock_path = ???" if gemfile_lock_path.nil?
+      errors << "\tAppcanary.api_key = ???" if api_key.nil?
+      errors << "\tAppcanary.gemfile_lock_path = ???" if gemfile_lock_path.nil?
       unless errors.empty?
-        raise ConfigurationError.new("Missing configuration:\n\n#{errors.join("\n")}")
+        raise ConfigurationError.new("Missing configuration:\n#{errors.join("\n")}")
       end
 
       self
@@ -99,8 +94,9 @@ module Appcanary
         self.monitor_name      = yaml_config["monitor_name"]
         self.base_uri          = yaml_config["base_uri"] || APPCANARY_DEFAULT_BASE_URI
       rescue Errno::ENOENT
-        raise ConfigurationError.new("No valid configuration found")
+        # ignore, fall through
       rescue => e
+        # there was a file, but something was wrong with it
         raise ConfigurationError.new(e)
       end
     end
@@ -108,14 +104,13 @@ module Appcanary
 
   class ConfigurationError < RuntimeError
     SUFFIX = <<-EOS
-
 Consult the following docs for more information:
 - https://github.com/appcanary/appcanary.rb
 - https://appcanary.com/settings
     EOS
 
     def initialize(msg)
-      super(msg + SUFFIX)
+      super("#{msg}\n\n#{SUFFIX}")
     end
   end
 
@@ -139,9 +134,17 @@ Consult the following docs for more information:
     def base_uri=(val);          configuration.base_uri = val;          end
 
     # static API
-    def vulnerable?(criticality = nil); canary.vulnerable?(criticality); end
-    def update_monitor!;                canary.update_monitor!;          end
-    def check;                          canary.check;                    end
+    def is_this_app_vulnerable?(criticality = nil)
+      canary.is_this_app_vulnerable?(criticality)
+    end
+
+    def update_monitor!
+      canary.update_monitor!
+    end
+
+    def check
+      canary.check
+    end
 
     private
     def canary

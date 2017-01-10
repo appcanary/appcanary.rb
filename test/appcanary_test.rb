@@ -121,15 +121,15 @@ describe Appcanary do
       end
 
       it "is not itself vulnerable" do
-        assert(!Appcanary.vulnerable?)
+        assert(!Appcanary.is_this_app_vulnerable?)
       end
 
       it "doesn't blow up for good criticalities" do
-        assert(!Appcanary.vulnerable?(:critical))
-        assert(!Appcanary.vulnerable?(:high))
-        assert(!Appcanary.vulnerable?(:medium))
-        assert(!Appcanary.vulnerable?(:low))
-        assert(!Appcanary.vulnerable?(:unknown))
+        assert(!Appcanary.is_this_app_vulnerable?(:critical))
+        assert(!Appcanary.is_this_app_vulnerable?(:high))
+        assert(!Appcanary.is_this_app_vulnerable?(:medium))
+        assert(!Appcanary.is_this_app_vulnerable?(:low))
+        assert(!Appcanary.is_this_app_vulnerable?(:unknown))
       end
 
       describe "#check" do
@@ -160,15 +160,15 @@ describe Appcanary do
       end
 
       it "is not itself vulnerable" do
-        assert(!@canary.vulnerable?)
+        assert(!@canary.is_this_app_vulnerable?)
       end
 
       it "doesn't blow up for good criticalities" do
-        assert(!@canary.vulnerable?(:critical))
-        assert(!@canary.vulnerable?(:high))
-        assert(!@canary.vulnerable?(:medium))
-        assert(!@canary.vulnerable?(:low))
-        assert(!@canary.vulnerable?(:unknown))
+        assert(!@canary.is_this_app_vulnerable?(:critical))
+        assert(!@canary.is_this_app_vulnerable?(:high))
+        assert(!@canary.is_this_app_vulnerable?(:medium))
+        assert(!@canary.is_this_app_vulnerable?(:low))
+        assert(!@canary.is_this_app_vulnerable?(:unknown))
       end
 
       describe "#check" do

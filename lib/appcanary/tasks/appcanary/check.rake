@@ -10,6 +10,8 @@ def run_check
       puts ref
     end
   end
+rescue => e
+  puts e
 end
 
 namespace :appcanary do

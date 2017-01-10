@@ -97,6 +97,8 @@ def run_appcanary_command
   when "check"
     run_check
   end
+rescue => e
+  puts e
 end
 
 run_appcanary_command

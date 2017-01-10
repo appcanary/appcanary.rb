@@ -62,7 +62,7 @@ config = {
 
 canary = Appcanary::Client.new(config)
 
-if canary.vulnerable?
+if canary.is_this_app_vulnerable?
   puts "you appear to have your ass in the air"
 end
 ```
@@ -91,7 +91,7 @@ Appcanary.gemfile_lock_path = "/path/to/gemfile"
 The gem may then be used without instantiating a client, like this:
 
 ```ruby
-if Appcanary.vulnerable? :critical
+if Appcanary.is_this_app_vulnerable? :critical
   puts "I see your shiny attack surface! It BIG!"
 end
 ```
@@ -132,7 +132,7 @@ configurations include the following items however.
 | Key                 | Required? | Description | Notes |
 | ------------------- | --------- | ----------- | ----- |
 | `api_key`           | Y         | Your Appcanary API key, found in your [Appcanary settings](https://appcanary.com/settings). | |
-| `gemfile_lock_path` | N*        | Path to your `Gemfile.lock`, which gets shipped to Appcanary for analysis. | Most of the time you can leave this undefined. *Be warned that the appcanary gem will error if Bundler is not loaded unless this is set. |
+| `gemfile_lock_path` | N         | Path to your `Gemfile.lock`, which gets shipped to Appcanary for analysis. | Most of the time you can leave this undefined. |
 | `monitor_name`      | Y*        | The base name for the monitor to be updated. *This is required if and only if you plan to use the `update_monitor` functionality. | If you're running in CI, the gem will attempt to acquire the name of the current branch and append that to your monitor name before sending the update. If a monitor does not already exist, it will be created. If this attribute is unset and the gem is loaded in the context of a Rails application, it will use the rails application name as the monitor name. |
 | `base_uri`          | N         | The url for the Appcanary service endpoint. | You should leave this unset unless you have a very good reason not to. |
 
