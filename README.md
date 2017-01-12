@@ -128,16 +128,17 @@ monitor_name: "my_monitor"
 
 For Heroku rails deployments, everything should really "just work".
 
-1. Include the `appcanary` gem in your `Gemfile`.
-2. Ensure you have the `api_key` set to `ENV["APPCANARY_API_KEY"]`.
-3. Set the env var like this: `heroku config:set APPCANARY_API_KEY=xxxx -a yorapp`
+1. Include the `appcanary` gem in your `Gemfile` - see previous section.
+2. Ensure you have the `api_key` set to `ENV["APPCANARY_API_KEY"]` - see previous section.
+3. Set the env var like this: `heroku config:set APPCANARY_API_KEY=xxxx -a yorapp`, where `yorapp` is replaced with the name of your Heroku application.
 4. Once deployed, try `heroku run rake appcanary:check` to verify your dependencies.
 5. Optionally, set up a regular monitor update using the heroku scheduler:
-  1. `heroku addons:create scheduler:standard`
-  2. `heroku addons:open scheduler`
-  3. Add a job that executes `rake appcanary:update_monitor`
-   
-This should get you going with a rails deployment on Heroku.
+  1. `heroku addons:create scheduler:standard` - creates a new scheduler service instance, attached to your application.
+  2. `heroku addons:open scheduler` - opens a browser window on the scheduler service UI.
+  3. Add a job that executes `rake appcanary:update_monitor` - the scheduler UI makes how to do this obvious (at the time of writing).
+
+Steps 1 and 2 are exactly as described in previous sections. This should get you
+going with a rails deployment on Heroku.
 
 ## Configuration
 
