@@ -17,7 +17,7 @@ These instructions will get you going on CircleCI with a rails project.
 First, add the appcanary gem to your Gemfile:
 
 ```ruby
-gem "appcanary", :git => "https://github.com/appcanary/appcanary.rb"
+gem "appcanary"
 ```
 
 `bundle install` it to update your `Gemfile.lock`.
