@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/appcanary/appcanary.rb.svg?style=svg)](https://circleci.com/gh/appcanary/appcanary.rb)
 
-[Appcanary](https://appcanary.co) is a service which keeps track of which
+[Appcanary](https://appcanary.com) is a service which keeps track of which
 versions of what packages are vulnerable to which security vulnerabilities, so
 you don't have to.
 
