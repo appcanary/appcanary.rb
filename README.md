@@ -140,6 +140,31 @@ For Heroku rails deployments, everything should really "just work".
 Steps 1 and 2 are exactly as described in previous sections. This should get you
 going with a rails deployment on Heroku.
 
+### Rails Mocking and Net::HTTP
+
+The Appcanary gem needs to connect to appcanary.com to perform its checks.
+Unfortunately, commonly used testing tools such as `WebMock` monkey-patch
+`Net::HTTP` to intercept and prevent outbound HTTP connections. This issue can
+first surprise you in a CI environment, where `RAILS_ENV` and `RACK_ENV` are set
+to `test`, causing the Bundler `test` group to be loaded for tests and even
+standalone `rake` task invocations.
+
+To manage this, we provide two additional configurables, namely `disable_mocks`
+and `enable_mocks`. These may be set (in code only - YAML configuration is not
+supported for these items) in the usual way, and should be set to a callable
+code block with arity of 1. If not set (or set to `nil`), no callbacks will be
+executed.
+
+For example, the following configuration will disable `WebMock` so that
+`appcanary.rb` can reach out to appcanary.com, and re-enable it afterwards:
+
+```ruby
+Appcanary.api_key = "xxxxxxxxxxxxxxxxx"
+Appcanary.disable_mocks = -> { WebMock.disable! }
+# the following may be omitted if we don't care what happens afterward
+Appcanary.enable_mocks = -> { WebMock.enable! }
+```
+
 ## Configuration
 
 As we've seen, you can configure the appcanary gem several different ways. All
@@ -151,7 +176,8 @@ configurations include the following items however.
 | `gemfile_lock_path` | N         | Path to your `Gemfile.lock`, which gets shipped to Appcanary for analysis. | Most of the time you can leave this undefined. |
 | `monitor_name`      | Y*        | The base name for the monitor to be updated. *This is required if and only if you plan to use the `update_monitor` functionality. | If you're running in CI, the gem will attempt to acquire the name of the current branch and append that to your monitor name before sending the update. If a monitor does not already exist, it will be created. If this attribute is unset and the gem is loaded in the context of a Rails application, it will use the rails application name as the monitor name. |
 | `base_uri`          | N         | The url for the Appcanary service endpoint. | You should leave this unset unless you have a very good reason not to. |
-
+| `disable_mocks`     | N         | Nil, or a callable 1/arity block, to be executed just prior to making a HTTP request to appcanary.com. | See the "Rails Mocking and Net::HTTP" section above. |
+| `enable_mocks`      | N         | Nil, or a callable 1/arity block, to be executed just after making a HTTP request to appcanary.com. | See the "Rails Mocking and Net::HTTP" section above. |
 
 ## Development
 

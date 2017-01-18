@@ -7,7 +7,12 @@ module Appcanary
   GEMFILE_LOCK = "Gemfile.lock"
 
   class Configuration
-    attr_accessor :base_uri, :api_key, :monitor_name, :gemfile_lock_path
+    attr_accessor :base_uri,
+                  :api_key,
+                  :monitor_name,
+                  :gemfile_lock_path,
+                  :disable_mocks,
+                  :enable_mocks
 
     def [](k)
       self.send(k.to_s)
@@ -87,6 +92,8 @@ module Appcanary
     end
 
     def load_yaml_config!(path)
+      # NB it doesn't make sense to load callbacks from YAML config I don't
+      # think
       begin
         yaml_config            = YAML.load_file(path)
         self.api_key           = yaml_config["api_key"]
@@ -132,6 +139,8 @@ Consult the following docs for more information:
     def gemfile_lock_path=(val); configuration.gemfile_lock_path = val; end
     def monitor_name=(val);      configuration.monitor_name = val;      end
     def base_uri=(val);          configuration.base_uri = val;          end
+    def disable_mocks=(val);     configuration.disable_mocks = val;     end
+    def enable_mocks=(val);      configuration.enable_mocks = val;      end
 
     # static API
     def is_this_app_vulnerable?(criticality = nil)

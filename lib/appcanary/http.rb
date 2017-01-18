@@ -87,10 +87,21 @@ module Appcanary
         req = request_type.new(url.path, params, headers, SecureRandom.base64)
         options = { use_ssl: url.scheme == "https" }
 
-        Net::HTTP.start(url.host, url.port, options) do |http|
-          http.request(req)
+
+        with_mock_callbacks(config) do
+          Net::HTTP.start(url.host, url.port, options) do |http|
+            http.request(req)
+          end
         end
       end
+    end
+
+    def with_mock_callbacks(config, &block)
+      # if there are callbacks defined, use them
+      config[:disable_mocks].call unless config[:disable_mocks].nil?
+      response = block.call
+      config[:enable_mocks].call unless config[:enable_mocks].nil?
+      response
     end
   end
 end
