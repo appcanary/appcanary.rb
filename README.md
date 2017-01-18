@@ -152,7 +152,7 @@ standalone `rake` task invocations.
 To manage this, we provide two additional configurables, namely `disable_mocks`
 and `enable_mocks`. These may be set (in code only - YAML configuration is not
 supported for these items) in the usual way, and should be set to a callable
-code block with arity of 1. If not set (or set to `nil`), no callbacks will be
+code block with arity of 0. If not set (or set to `nil`), no callbacks will be
 executed.
 
 For example, the following configuration will disable `WebMock` so that
@@ -176,8 +176,8 @@ configurations include the following items however.
 | `gemfile_lock_path` | N         | Path to your `Gemfile.lock`, which gets shipped to Appcanary for analysis. | Most of the time you can leave this undefined. |
 | `monitor_name`      | Y*        | The base name for the monitor to be updated. *This is required if and only if you plan to use the `update_monitor` functionality. | If you're running in CI, the gem will attempt to acquire the name of the current branch and append that to your monitor name before sending the update. If a monitor does not already exist, it will be created. If this attribute is unset and the gem is loaded in the context of a Rails application, it will use the rails application name as the monitor name. |
 | `base_uri`          | N         | The url for the Appcanary service endpoint. | You should leave this unset unless you have a very good reason not to. |
-| `disable_mocks`     | N         | Nil, or a callable 1/arity block, to be executed just prior to making a HTTP request to appcanary.com. | See the "Rails Mocking and Net::HTTP" section above. |
-| `enable_mocks`      | N         | Nil, or a callable 1/arity block, to be executed just after making a HTTP request to appcanary.com. | See the "Rails Mocking and Net::HTTP" section above. |
+| `disable_mocks`     | N         | Nil, or a callable 0/arity block, to be executed just prior to making a HTTP request to appcanary.com. | See the "Rails Mocking and Net::HTTP" section above. |
+| `enable_mocks`      | N         | Nil, or a callable 0/arity block, to be executed just after making a HTTP request to appcanary.com. | See the "Rails Mocking and Net::HTTP" section above. |
 
 ## Development
 
