@@ -31,7 +31,7 @@ Appcanary.api_key = ENV["APPCANARY_API_KEY"] || "api key not set"
 Now, add the following lines to your `circle.yml` file:
 
 ```yaml
-dependencies:
+test:
   # [ ... other dependency bits elided ... ]
   post:
     # outputs CVEs and references
