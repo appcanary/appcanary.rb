@@ -32,7 +32,7 @@ module Appcanary
       end
 
       unless %w[200 201].include? resp.code.to_s
-        raise ServiceError.new("Failed to ship file to Appcanary: #{resp}")
+        raise ServiceError.new("Failed to ship file to Appcanary: #{resp.message}")
       end
 
       JSON.parse(resp.body)
