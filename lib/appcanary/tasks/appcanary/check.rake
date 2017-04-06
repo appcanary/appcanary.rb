@@ -8,6 +8,7 @@ def run_check
       vuln["attributes"]["reference-ids"]
     end.flatten.uniq.each do |ref|
       puts ref
+      exit 1
     end
   end
 rescue => e
