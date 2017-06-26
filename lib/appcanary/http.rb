@@ -3,6 +3,8 @@ require "net/http/post/multipart"
 require "json"
 
 module Appcanary
+  require 'securerandom'
+
   class ServiceError < RuntimeError
   end
 
